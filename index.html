@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart Pro Label Tool | Label Crop Tool</title>
+    <title>Flipkart Label Master | Advanced Crop Tool</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <style>
@@ -13,6 +13,7 @@
         }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
         
+        /* AD LAYOUT */
         .page-layout { display: flex; justify-content: center; align-items: flex-start; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
         .ad-sidebar { width: 160px; min-height: 600px; background: white; border: 2px dashed #cbd5e1; border-radius: 15px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 14px; position: sticky; top: 20px; text-align: center; }
 
@@ -21,32 +22,21 @@
         .main-heading { font-size: 20px; font-weight: bold; color: var(--fk-blue); }
         
         .meesho-link-btn { padding: 12px 25px; background: var(--meesho-pink); color: white; border-radius: 12px; font-weight: bold; text-decoration: none; transition: 0.3s; }
-        .meesho-link-btn:hover { opacity: 0.8; transform: translateY(-2px); }
         
         .card { background: white; padding: 40px; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); border-top: 10px solid var(--fk-blue); }
-
-        .drop-box { 
-            border: 3px dashed #cbd5e1; border-radius: 15px; padding: 50px 20px; 
-            background: #fcfcfc; cursor: pointer; text-align: center; transition: 0.3s;
-            position: relative;
-        }
+        .drop-box { border: 3px dashed #cbd5e1; border-radius: 15px; padding: 50px 20px; background: #fcfcfc; cursor: pointer; text-align: center; transition: 0.3s; position: relative; }
         .drop-box * { pointer-events: none; } 
         .drop-box.dragover { border-color: var(--fk-blue); background: #eef6ff; }
-        
+
+        /* File List Area */
         #filePreview { margin-top: 25px; }
-        .file-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            background: #fff; padding: 12px 15px; border-radius: 10px; 
-            margin-bottom: 8px; border: 1px solid #e2e8f0; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-        }
-        .file-info { display: flex; align-items: center; gap: 10px; color: #475569; font-size: 14px; }
-        .remove-btn { 
-            background: #fee2e2; color: #ef4444; border: none; 
-            padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;
-        }
+        .file-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 15px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #e2e8f0; }
+        .remove-btn { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
 
         .action-btn { background: var(--fk-orange); color: white; border: none; padding: 20px; border-radius: 12px; font-size: 22px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 15px; }
         .action-btn:disabled { background: #ccc; cursor: not-allowed; }
+        
+        .audit-btn { background: #fff3e0; color: #e65100; border: 2px solid #ffb74d; padding: 15px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; display: none; }
 
         footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 20px; margin-top: auto; }
         @media (max-width: 1200px) { .ad-sidebar { display: none; } }
@@ -55,37 +45,44 @@
 <body>
 
 <div class="page-layout">
-    <div class="ad-sidebar">Ads</div>
+    <div class="ad-sidebar">Ads Space</div>
+
     <div class="wrapper">
         <div class="header-section">
-            <div class="main-heading">Flipkart Label Master (SKU Sort)</div>
+            <div class="main-heading">Flipkart Dispatch (SKU Sort & Crop)</div>
             <a href="meesho/index.html" class="meesho-link-btn">Meesho 4x6</a>
         </div>
+
         <div class="card">
             <div class="drop-box" id="dropZone">
-                <span style="font-size: 50px;">📦</span>
+                <span style="font-size: 50px;">📂</span>
                 <h3>Drag & Drop Flipkart Labels</h3>
-                <p>Duplicate files will be auto-removed</p>
+                <p>Duplicates are auto-removed | SKU Sorted</p>
                 <input type="file" id="fileInput" accept="application/pdf" multiple style="display:none">
             </div>
             
             <div id="filePreview"></div>
             
-            <button id="processBtn" class="action-btn" disabled>PROCESS & DOWNLOAD</button>
+            <button id="processBtn" class="action-btn" disabled>PROCESS & DOWNLOAD MASTER PDF</button>
+            <button id="auditBtn" class="audit-btn"></button>
         </div>
     </div>
-    <div class="ad-sidebar">Ads</div>
+
+    <div class="ad-sidebar">Ads Space</div>
 </div>
 
+<footer>&copy; 2026 Flipkart Label Tool | Mahavir & Team</footer>
+
 <script>
-    // PDF.js worker setup for SKU reading
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
     let uploadedFiles = [];
+    let deletedPdfBytes = null;
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const preview = document.getElementById('filePreview');
     const processBtn = document.getElementById('processBtn');
+    const auditBtn = document.getElementById('auditBtn');
 
     dropZone.onclick = () => fileInput.click();
     fileInput.onchange = (e) => handleFiles(e.target.files);
@@ -98,14 +95,12 @@
         handleFiles(e.dataTransfer.files);
     });
 
-    async function handleFiles(files) {
+    function handleFiles(files) {
         for (let file of files) {
             if (file.type === "application/pdf") {
-                // Duplicate Check by Name and Size
                 const isDuplicate = uploadedFiles.some(f => f.file.name === file.name && f.file.size === file.size);
                 if (!isDuplicate) {
-                    const fileId = Math.random().toString(36).substr(2, 9);
-                    uploadedFiles.push({ id: fileId, file: file });
+                    uploadedFiles.push({ id: Math.random().toString(36).substr(2, 9), file: file });
                 }
             }
         }
@@ -136,56 +131,75 @@
     processBtn.onclick = async () => {
         processBtn.innerText = "READING SKU & SORTING...";
         processBtn.disabled = true;
+        auditBtn.style.display = "none";
+        deletedPdfBytes = null;
+
+        const { PDFDocument } = PDFLib;
+        const outDoc = await PDFDocument.create();
+        const auditDoc = await PDFDocument.create();
+        let allPages = [];
+        let seenFingerprints = new Set();
+        let dupCount = 0;
 
         try {
-            const { PDFDocument } = PDFLib;
-            const finalDoc = await PDFDocument.create();
-            let allPages = [];
-
             for (let item of uploadedFiles) {
                 const buffer = await item.file.arrayBuffer();
                 const srcDoc = await PDFDocument.load(buffer);
                 const pdfjsDoc = await pdfjsLib.getDocument({data: buffer}).promise;
 
-                for (let i = 0; i < srcDoc.getPageCount(); i++) {
-                    const page = await pdfjsDoc.getPage(i + 1);
+                for (let i = 1; i <= srcDoc.getPageCount(); i++) {
+                    const page = await pdfjsDoc.getPage(i);
                     const textContent = await page.getTextContent();
-                    // Flipkart SKU logic: dhundna SKU ke niche wala text
-                    const textItems = textContent.items.map(t => t.str.trim()).filter(t => t !== "");
+                    const fullText = textContent.items.map(t => t.str).join(" ");
                     
-                    // Simple SKU extraction logic for Flipkart
-                    let sku = "UNKNOWN";
-                    const skuIdx = textItems.findIndex(t => t.includes("SKU"));
-                    if(skuIdx !== -1 && textItems[skuIdx+1]) {
-                        sku = textItems[skuIdx+1];
-                    }
+                    const orderId = (fullText.match(/\d{15,}/) || ["N/A"])[0];
+                    const skuMatch = fullText.match(/SKU ID\s*\|\s*Description\s*QTY\s*(?:1\s+)?([^|]+)/i);
+                    let skuName = skuMatch ? skuMatch[1].trim().replace(/-+/g, '-') : "N/A";
+                    
+                    const fingerprint = `${orderId}_${skuName}`;
 
-                    allPages.push({ sku, srcDoc, index: i });
+                    if (!seenFingerprints.has(fingerprint)) {
+                        seenFingerprints.add(fingerprint);
+                        const [copied] = await outDoc.copyPages(srcDoc, [i-1]);
+                        allPages.push({ page: copied, sku: skuName.toUpperCase() });
+                    } else {
+                        const [deleted] = await auditDoc.copyPages(srcDoc, [i-1]);
+                        auditDoc.addPage(deleted);
+                        dupCount++;
+                    }
                 }
             }
 
-            // SKU Sort
             allPages.sort((a, b) => a.sku.localeCompare(b.sku, undefined, {numeric: true}));
 
-            for (let p of allPages) {
-                const [copied] = await finalDoc.copyPages(p.srcDoc, [p.index]);
-                // Flipkart 3x5 Crop
-                copied.setCropBox(189.5, 463.5, 216, 351);
-                finalDoc.addPage(copied);
-            }
+            allPages.forEach(p => {
+                p.page.setCropBox(189.5, 463.5, 216, 351);
+                outDoc.addPage(p.page);
+            });
 
-            const pdfBytes = await finalDoc.save();
+            const pdfBytes = await outDoc.save();
             const link = document.createElement('a');
             link.href = URL.createObjectURL(new Blob([pdfBytes], { type: "application/pdf" }));
-            link.download = `Flipkart_Sorted_Labels.pdf`;
+            link.download = `Flipkart_Master_${allPages.length}_Orders.pdf`;
             link.click();
 
-        } catch (err) {
-            alert("Sorting Error: " + err.message);
-        }
+            if (dupCount > 0) {
+                deletedPdfBytes = await auditDoc.save();
+                auditBtn.innerText = `⚠️ DOWNLOAD ${dupCount} DUPLICATE LABELS REMOVED`;
+                auditBtn.style.display = "block";
+            }
+        } catch (err) { alert("Error: " + err.message); }
 
-        processBtn.innerText = "PROCESS & DOWNLOAD";
+        processBtn.innerText = "PROCESS & DOWNLOAD MASTER PDF";
         processBtn.disabled = false;
+    };
+
+    auditBtn.onclick = () => {
+        if (!deletedPdfBytes) return;
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([deletedPdfBytes], { type: "application/pdf" }));
+        link.download = `Deleted_Duplicates_Flipkart.pdf`;
+        link.click();
     };
 </script>
 </body>
