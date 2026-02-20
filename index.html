@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Label Master Tool</title>
+    <title>Label Master Tool | Professional PDF Crop</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
     <style>
@@ -33,11 +33,10 @@
 
         .nav-links { display: flex; gap: 15px; }
         .nav-links a { 
-            text-decoration: none; color: var(--fk-blue); font-weight: 700; font-size: 16px; 
-            padding: 10px 20px; border: 2px solid var(--fk-blue); border-radius: 8px; transition: 0.3s;
+            text-decoration: none; color: var(--fk-blue); font-weight: 700; font-size: 14px; 
+            padding: 8px 16px; border: 2px solid var(--fk-blue); border-radius: 8px; transition: 0.3s;
         }
 
-        /* LAYOUT FOR ADS */
         .page-wrapper {
             display: flex;
             justify-content: center;
@@ -65,14 +64,7 @@
             padding: 10px;
         }
 
-        .work-area { 
-            flex: 1;
-            max-width: 850px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 30px; 
-        }
-
+        .work-area { flex: 1; max-width: 850px; display: flex; flex-direction: column; gap: 30px; }
         .card { background: white; border-radius: 15px; padding: 35px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
 
         .drop-box { 
@@ -86,10 +78,18 @@
             border-radius: 8px; font-size: 20px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 20px;
         }
 
-        .history-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        .history-table th { text-align: left; padding: 12px; color: #64748b; border-bottom: 2px solid #f1f5f9; }
+        /* NEW PAGES SECTION FOR ADSENSE */
+        .footer-info {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #64748b;
+        }
 
-        footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 20px; font-size: 14px; margin-top: auto;}
+        footer { background: #1e293b; color: #94a3b8; text-align: center; padding: 20px; font-size: 13px; margin-top: auto;}
 
         @media (max-width: 1200px) { .ad-container { display: none; } }
     </style>
@@ -97,46 +97,48 @@
 <body>
 
 <div class="top-banner">
-    <div class="welcome-area"><h1>Flipkart and Meesho Labels Merge, SKU-Short and Crop Tool</h1></div>
+    <div class="welcome-area"><h1>Flipkart & Meesho Label Master</h1></div>
     <div class="nav-links">
-        <a href="#">Flipkart 3x5</a>
-        <a href="#">Meesho 4x6</a>
+        <a href="#about">About</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#contact">Contact</a>
     </div>
 </div>
 
 <div class="page-wrapper">
-    <div class="ad-container">Advertisements<br>Area</div>
+    <div class="ad-container">Ad Space (Left)</div>
 
     <div class="work-area">
         <div class="card">
             <div class="drop-box" id="dropZone">
                 <span style="font-size: 65px;">📂</span>
-                <h3>Drag & Drop Multiple Flipkart Labels Here</h3>
-                <p>Or click to select files</p>
+                <h3>Drag & Drop Flipkart Labels Here</h3>
+                <p>Fast, Secure & Automated Sorting</p>
                 <input type="file" id="fileInput" accept="application/pdf" multiple style="display:none">
             </div>
             <div id="filePreview"></div>
             <button id="processBtn" class="action-btn" disabled>Generate Master PDF</button>
         </div>
 
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items: center;">
-                <span style="font-weight: 800; color: #475569;">Recent History</span>
-                <button onclick="clearHistory()" style="background:none; border:none; color:var(--danger); cursor:pointer;">RESET</button>
-            </div>
-            <table class="history-table">
-                <thead><tr><th>File Name</th><th>Date / Time</th></tr></thead>
-                <tbody id="historyBody"></tbody>
-            </table>
+        <div id="about" class="footer-info">
+            <h3>About Label Master</h3>
+            <p>This tool helps e-commerce sellers automate their packing process. It crops labels to 3x5 or 4x6 inches and sorts them by SKU, saving hours of manual work every day.</p>
+            
+            <h3 id="privacy">Privacy Policy</h3>
+            <p>Your privacy is our priority. All PDF processing happens locally in your browser. We **never** upload, save, or see your labels or customer data on our servers.</p>
+            
+            <h3 id="contact">Contact Us</h3>
+            <p>For support or feedback, contact us at: <b>support@yourdomain.com</b></p>
         </div>
     </div>
 
-    <div class="ad-container">Advertisements<br>Area</div>
+    <div class="ad-container">Ad Space (Right)</div>
 </div>
 
-<footer>&copy; 2026 Internal Logistics Tool</footer>
+<footer>&copy; 2026 E-commerce Seller Tools | Developed for Productivity</footer>
 
 <script>
+    // ... functional code (same as before) ...
     let uploadedFiles = [];
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
@@ -178,12 +180,6 @@
         link.click();
         processBtn.innerText = "Generate Master PDF";
     };
-
-    function updateHistoryUI() {
-        const history = JSON.parse(localStorage.getItem('fk_history') || '[]');
-        document.getElementById('historyBody').innerHTML = history.map(h => `<tr><td>${h.name}</td><td>${h.time}</td></tr>`).join('');
-    }
-    updateHistoryUI();
 </script>
 </body>
 </html>
